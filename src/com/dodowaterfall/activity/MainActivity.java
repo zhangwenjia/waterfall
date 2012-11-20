@@ -23,6 +23,7 @@ import com.dodowaterfall.R;
 import com.dodowaterfall.widget.FlowView;
 import com.dodowaterfall.widget.LazyScrollView;
 import com.dodowaterfall.widget.LazyScrollView.MyOnScrollListener;
+import com.dodowaterfall.widget.MyFlowView;
 
 public class MainActivity extends Activity {
 
@@ -111,14 +112,14 @@ public class MainActivity extends Activity {
 						LinearLayout localLinearLayout = waterfall_items.get(k); // 按个取linearLayout
 						// 重新加载
 						if (pin_mark[k].get(Math.min(bottomIndex[k] + 1, lineIndex[k])) <= vertical + 3 * scroll_height) {// 最底部的图片位置小于当前t+3*屏幕高度
-							((FlowView) waterfall_items.get(k).getChildAt(Math.min(1 + bottomIndex[k], lineIndex[k]))).reload();
+							((MyFlowView) waterfall_items.get(k).getChildAt(Math.min(1 + bottomIndex[k], lineIndex[k]))).reload();
 							bottomIndex[k] = Math.min(1 + bottomIndex[k], lineIndex[k]);
 						}
 						// 回收图片
 						if (pin_mark[k].get(topIndex[k]) < vertical - 2 * scroll_height) {// 未回收图片的最高位置<t-两倍屏幕高度
 							int i1 = topIndex[k];
 							topIndex[k]++;
-							((FlowView) localLinearLayout.getChildAt(i1)).recycle();// 回收到第几张图片
+							((MyFlowView) localLinearLayout.getChildAt(i1)).recycle();// 回收到第几张图片
 						}
 					}
 				}
@@ -128,12 +129,12 @@ public class MainActivity extends Activity {
 						LinearLayout localLinearLayout = waterfall_items.get(k);
 						// 回收图片
 						if (pin_mark[k].get(bottomIndex[k]) > vertical + 3 * scroll_height) {
-							((FlowView) localLinearLayout.getChildAt(bottomIndex[k])).recycle();
+							((MyFlowView) localLinearLayout.getChildAt(bottomIndex[k])).recycle();
 							bottomIndex[k]--;
 						}
 						// 重新加载
 						if (pin_mark[k].get(Math.max(topIndex[k] - 1, 0)) >= vertical - 2 * scroll_height) {
-							((FlowView) localLinearLayout.getChildAt(Math.max(-1 + topIndex[k], 0))).reload();
+							((MyFlowView) localLinearLayout.getChildAt(Math.max(-1 + topIndex[k], 0))).reload();
 							topIndex[k] = Math.max(topIndex[k] - 1, 0);
 						}
 					}
@@ -153,7 +154,7 @@ public class MainActivity extends Activity {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case 1:
-				FlowView photo = (FlowView) msg.obj;
+				MyFlowView photo = (MyFlowView) msg.obj;
 				int h = msg.arg2; // 调整后的高
 				String fileName = photo.getFileName();
 
@@ -221,7 +222,7 @@ public class MainActivity extends Activity {
 	}
 
 	private void AddImage(String filename, int rowIndex, int id) {
-		FlowView item = new FlowView(context);
+		MyFlowView item = new MyFlowView(context);
 		
 		item.setRowIndex(rowIndex);
 		item.setId(id);
