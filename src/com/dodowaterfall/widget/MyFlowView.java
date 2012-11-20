@@ -1,30 +1,18 @@
 package com.dodowaterfall.widget;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Handler;
-import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.dodowaterfall.R;
-import com.dodowaterfall.widget.FlowView.LoadImageThread;
-import com.dodowaterfall.widget.FlowView.ReloadImageThread;
 
-public class MyFlowView extends RelativeLayout implements View.OnClickListener, View.OnLongClickListener{
+public class MyFlowView extends RelativeLayout{
 
 	private final String LOGTAG = "mylog";
 	
@@ -56,10 +44,6 @@ public class MyFlowView extends RelativeLayout implements View.OnClickListener, 
 		photo = (ImageView)myFlowView.findViewById(R.id.photo);
 		distance_tv = (TextView)myFlowView.findViewById(R.id.distance_tv);
 		online_img = (ImageView)myFlowView.findViewById(R.id.online_img);
-		
-		setOnClickListener(this);
-		setOnLongClickListener(this);
-		photo.setAdjustViewBounds(true);
 	}
 	
 	public MyFlowView(Context c) {
@@ -147,129 +131,5 @@ public class MyFlowView extends RelativeLayout implements View.OnClickListener, 
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public boolean onLongClick(View v) {
-		Toast.makeText(context, 
-				"长按 " + 
-				"flowId is:" + flowId + "|" +
-				"fileName is:"+ fileName + "|" +
-				"itemWidth is:" + itemWidth + "|" +
-				"columnIndex is:" + columnIndex + "|" +
-				"rowIndex is:" + rowIndex + "|"
-				, Toast.LENGTH_SHORT).show();
-		
-		Log.d(LOGTAG , 
-				"长按 "+
-				"flowId is:" + flowId + "|" +
-				"fileName is:"+ fileName + "|" +
-				"itemWidth is:" + itemWidth + "|" +
-				"columnIndex is:" + columnIndex + "|" +
-				"rowIndex is:" + rowIndex + "|");
-		return false;
-	}
-
-	@Override
-	public void onClick(View v) {
-		Toast.makeText(context, 
-				"单击：" + 
-				"flowId is:" + flowId + "|" +
-				"fileName is:"+ fileName + "|" +
-				"itemWidth is:" + itemWidth + "|" +
-				"columnIndex is:" + columnIndex + "|" +
-				"rowIndex is:" + rowIndex + "|", 
-				Toast.LENGTH_SHORT).show();
-		
-		Log.d(LOGTAG , 
-				"单击 "+
-				"flowId is:" + flowId + "|" +
-				"fileName is:"+ fileName + "|" +
-				"itemWidth is:" + itemWidth + "|" +
-				"columnIndex is:" + columnIndex + "|" +
-				"rowIndex is:" + rowIndex + "|");
-	}
-	
-	/**
-	 * 加载图片
-	 */
-	public void loadImage() {
-		new LoadImageThread().start();
-	}
-	
-	/**
-	 * 重新加载图片
-	 */
-	public void reload() {
-		if (this.bitmap == null) {
-			new ReloadImageThread().start();
-		}
-	}
-	
-	/**
-	 * 回收内存
-	 */
-	public void recycle() {
-		photo.setImageBitmap(null);
-		if ((this.bitmap == null) || (this.bitmap.isRecycled()))
-			return;
-		this.bitmap.recycle();
-		this.bitmap = null;
-	}
-	
-	class ReloadImageThread extends Thread {
-		@Override
-		public void run() {
-			BufferedInputStream buf;
-			try {
-				buf = new BufferedInputStream(getAssetManager().open(fileName));
-				bitmap = BitmapFactory.decodeStream(buf);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			((Activity) context).runOnUiThread(new Runnable() {
-				public void run() {
-					if (bitmap != null) {
-						photo.setImageBitmap(bitmap);
-					}
-				}
-			});
-		}
-	}
-	
-	class LoadImageThread extends Thread {
-		LoadImageThread() {
-		}
-
-		public void run() {
-			BufferedInputStream buf;
-			try {
-				buf = new BufferedInputStream(getAssetManager().open(fileName));
-				bitmap = BitmapFactory.decodeStream(buf);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			((Activity) context).runOnUiThread(new Runnable() {
-				public void run() {
-					if (bitmap != null) {
-						int width = bitmap.getWidth();// 照片的原始宽高
-						int height = bitmap.getHeight();
-
-						ViewGroup.LayoutParams lp = myFlowView.getLayoutParams();
-						int layoutHeight = (height * itemWidth) / width;// 调整高度。根据给定的宽度，调整照片的高度
-						if (lp == null) {
-							lp = new LayoutParams(itemWidth, layoutHeight);
-						}
-						setLayoutParams(lp);
-						photo.setImageBitmap(bitmap);
-						Handler h = getViewHandler();
-						Message m = h.obtainMessage(what, width, layoutHeight, MyFlowView.this);
-						h.sendMessage(m);
-					}
-				}
-			});
-		}
 	}
 }
